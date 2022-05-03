@@ -1,6 +1,7 @@
 package com.rick.appselect.ui
 
 import android.content.res.Resources
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,40 +19,56 @@ class AppSelectViewModel @Inject constructor(
 ) : ViewModel() {
 
     val errorMessage = MutableLiveData<String>()
-    val movieList = MutableLiveData<List<Result>>()
+
+    private val _movieList = MutableLiveData<List<Result>>()
+    val movieList : LiveData<List<Result>> = _movieList
+
     val hasMore = MutableLiveData<Boolean>()
-    val isLoading = MutableLiveData<Boolean>()
-    val isRefresing = MutableLiveData<Boolean>()
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _isRefreshing = MutableLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean> = _isRefreshing
+
+    private var paginationNumber = 20
 
     init {
-        fetchMovieCatalog()
+        fetchMovieCatalog(paginationNumber)
     }
 
-    private fun fetchMovieCatalog() {
+    private fun fetchMovieCatalog(pages: Int) {
         viewModelScope.launch {
-            repository.getMovieCalalog(PAGINATION, QUERY_ORDER)
+            repository.getMovieCalalog(pages)
                 .collect { result ->
                     when (result) {
                         is Resource.Error -> {
                             errorMessage.value = result.message ?: Resources.getSystem().getString(R.string.error_message)
-                            isLoading.value = false
+                            _isRefreshing.value = false
                         }
                         is Resource.Loading -> {
-                            isLoading.value = result.isLoading
+                            _isLoading.value = result.isLoading
                         }
                         is Resource.Success -> {
-                            movieList.postValue(
+                            _movieList.postValue(
                                 result.data!!.results
                             )
                             hasMore.value = result.data.hasMore
-                            isLoading.value = false
+                            _isRefreshing.value = false
                         }
                     }
                 }
         }
     }
 
-}
+    fun loadMoreData(){
+        _isLoading.postValue(true)
+        paginationNumber += 10
+        fetchMovieCatalog(paginationNumber)
+    }
 
-private const val QUERY_ORDER = "by-publication-date"
-private const val PAGINATION = 20
+    fun refreshData(){
+        _isRefreshing.postValue(true)
+        fetchMovieCatalog(paginationNumber)
+    }
+}

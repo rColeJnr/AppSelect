@@ -10,12 +10,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : AppCompatActivity() {
 
-    private lateinit var appSelectViewModel: AppSelectViewModel
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        appSelectViewModel = ViewModelProvider(this)[AppSelectViewModel::class.java]
 
         startActivity(Intent(this, AppSelectActivity::class.java))
         finish()

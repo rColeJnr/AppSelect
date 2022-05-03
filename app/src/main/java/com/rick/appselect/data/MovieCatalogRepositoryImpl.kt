@@ -15,11 +15,11 @@ class MovieCatalogRepositoryImpl @Inject constructor(
 ): IMovieCatalogRepository {
 
     // @Param queryOrder -  paginate through results, 20 at a time.
-    override suspend fun getMovieCalalog(offset: Int, queryOrder: String): Flow<Resource<MovieCatalog>> {
+    override suspend fun getMovieCalalog(offset: Int): Flow<Resource<MovieCatalog>> {
         return flow {
             emit(Resource.Loading(true))
-            val movieCatalog = try {
-                val response = api.fetchMovieCatalog(offset, queryOrder)
+            try {
+                val response = api.fetchMovieCatalog(offset, QUERY_ORDER)
                 emit(Resource.Success(
                     data = response.toMovieCatalog()
                 ))
@@ -27,12 +27,14 @@ class MovieCatalogRepositoryImpl @Inject constructor(
             } catch (e: IOException){
                 e.printStackTrace()
                 emit(Resource.Error(e.message ?: ""))
-                null
+                emit(Resource.Loading(false))
             } catch (e: HttpException) {
                 e.printStackTrace()
                 emit(Resource.Error(e.message ?: ""))
-                null
+                emit(Resource.Loading(false))
             }
         }
     }
 }
+
+private const val QUERY_ORDER = "by-publication-date"

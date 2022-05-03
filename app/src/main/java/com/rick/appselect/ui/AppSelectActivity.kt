@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.rick.appselect.R
 import com.rick.appselect.databinding.ActivityAppSelectBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,35 +27,61 @@ class AppSelectActivity : AppCompatActivity() {
 
         adapter = AppSelectAdapter(this)
 
-        binding.root.isRefreshing = false
-
+        val layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                this@AppSelectActivity,
+                DividerItemDecoration.VERTICAL
+            )
+        )
         binding.recyclerView.adapter = adapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
-        viewModel.movieList.observe(this){ list ->
+        viewModel.movieList.observe(this) { list ->
             adapter.moviesDiffer.submitList(list)
         }
 
-//        viewModel.isLoading.observe(this){
-//            //TODO remove loading icon, or something
-//        }
 
-        viewModel.errorMessage.observe(this){
-            if (it.isNotBlank())
-                Toast.makeText(this, getString(R.string.error_toast_message), Toast.LENGTH_LONG).show()
+        viewModel.isLoading.observe(this) {
+            // show Circular progress
         }
 
-//        viewModel.isRefresing.observe(this){
-//            //TODO
-//        }
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (!viewModel.isLoading.value!!) {
+                    if (layoutManager.findLastCompletelyVisibleItemPosition() == adapter.moviesDiffer.currentList.size - 1) {
+                        viewModel.loadMoreData()
+                    }
+                }
+            }
+        })
+
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                layoutManager.scrollToPositionWithOffset(positionStart, 0)
+            }
+        })
+
+        viewModel.errorMessage.observe(this) {
+            if (it.isNotBlank())
+                Toast.makeText(this, getString(R.string.error_toast_message), Toast.LENGTH_LONG)
+                    .show()
+        }
+
+        viewModel.isRefreshing.observe(this){
+            binding.root.isRefreshing = it
+        }
 
         binding.root.setOnRefreshListener {
-            refreshData()
+            viewModel.refreshData()
         }
     }
 
-    private fun refreshData() {
-        TODO()
+    override fun onResume() {
+        super.onResume()
+        binding.root.isRefreshing = true
     }
+
 }
