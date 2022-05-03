@@ -1,6 +1,5 @@
-package com.rick.appselect.data.repository
+package com.rick.appselect.data
 
-import com.rick.appselect.data.MovieCatalogApi
 import com.rick.appselect.data.mappers.toMovieCatalog
 import com.rick.appselect.domain.model.MovieCatalog
 import com.rick.appselect.domain.repository.IMovieCatalogRepository
@@ -15,14 +14,16 @@ class MovieCatalogRepositoryImpl @Inject constructor(
     private val api: MovieCatalogApi
 ): IMovieCatalogRepository {
 
-    override suspend fun getMovieCalalog(query: String): Flow<Resource<MovieCatalog>> {
+    // @Param queryOrder -  paginate through results, 20 at a time.
+    override suspend fun getMovieCalalog(offset: Int, queryOrder: String): Flow<Resource<MovieCatalog>> {
         return flow {
             emit(Resource.Loading(true))
             val movieCatalog = try {
-                val response = api.fetchMovieCatalog(20, QUERY_ORDER)
+                val response = api.fetchMovieCatalog(offset, queryOrder)
                 emit(Resource.Success(
                     data = response.toMovieCatalog()
                 ))
+                emit(Resource.Loading(false))
             } catch (e: IOException){
                 e.printStackTrace()
                 emit(Resource.Error(e.message ?: ""))
@@ -35,4 +36,3 @@ class MovieCatalogRepositoryImpl @Inject constructor(
         }
     }
 }
-private const val QUERY_ORDER = "by-publication-date"

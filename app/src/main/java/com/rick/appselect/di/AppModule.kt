@@ -2,7 +2,6 @@ package com.rick.appselect.di
 
 import com.rick.appselect.data.MovieCatalogApi
 import com.rick.appselect.data.MovieCatalogApi.Companion.BASE_URL
-import com.rick.appselect.data.repository.MovieCatalogRepositoryImpl
 import com.rick.appselect.domain.repository.IMovieCatalogRepository
 import dagger.Binds
 import dagger.Module

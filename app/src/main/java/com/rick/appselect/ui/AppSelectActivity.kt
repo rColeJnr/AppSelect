@@ -1,4 +1,4 @@
-package com.rick.appselect
+package com.rick.appselect.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

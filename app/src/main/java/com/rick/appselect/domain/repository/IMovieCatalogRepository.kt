@@ -6,8 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface IMovieCatalogRepository {
 
-    suspend fun getMovieCalalog(
-        query: String
-    ): Flow<Resource<MovieCatalog>>
+    suspend fun getMovieCalalog(offset: Int, queryOrder: String): Flow<Resource<MovieCatalog>>
 
 }
