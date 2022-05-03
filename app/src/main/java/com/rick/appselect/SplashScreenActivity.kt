@@ -17,4 +17,6 @@ class SplashScreenActivity : AppCompatActivity() {
         finish()
 
     }
+
+    val stringa  = "r2hGllYW5TVGnqspbO8u3li1Un4AlQgQ"
 }
