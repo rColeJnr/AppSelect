@@ -1,6 +1,7 @@
 package com.rick.appselect.ui
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -43,7 +44,8 @@ class AppSelectActivity : AppCompatActivity() {
 
 
         viewModel.isLoading.observe(this) {
-            // show Circular progress
+            if (it) binding.progressBar.visibility = View.VISIBLE
+            else binding.progressBar.visibility = View.GONE
         }
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -77,11 +79,6 @@ class AppSelectActivity : AppCompatActivity() {
         binding.root.setOnRefreshListener {
             viewModel.refreshData()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        binding.root.isRefreshing = true
     }
 
 }
