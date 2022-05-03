@@ -21,9 +21,10 @@ class AppSelectViewModel @Inject constructor(
     val errorMessage = MutableLiveData<String>()
 
     private val _movieList = MutableLiveData<List<Result>>()
-    val movieList : LiveData<List<Result>> = _movieList
+    val movieList: LiveData<List<Result>> = _movieList
 
-    val hasMore = MutableLiveData<Boolean>()
+    private val _hasMore = MutableLiveData<Boolean>()
+    val hasMore: LiveData<Boolean> = _hasMore
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -31,7 +32,7 @@ class AppSelectViewModel @Inject constructor(
     private val _isRefreshing = MutableLiveData<Boolean>()
     val isRefreshing: LiveData<Boolean> = _isRefreshing
 
-    private var paginationNumber = 20
+    private var paginationNumber = 15
 
     init {
         fetchMovieCatalog(paginationNumber)
@@ -48,12 +49,13 @@ class AppSelectViewModel @Inject constructor(
                         }
                         is Resource.Loading -> {
                             _isLoading.value = result.isLoading
+                            if (isRefreshing.value == true) _isLoading.value = false
                         }
                         is Resource.Success -> {
                             _movieList.postValue(
                                 result.data!!.results
                             )
-                            hasMore.value = result.data.hasMore
+                            _hasMore.value = result.data.hasMore
                             _isRefreshing.value = false
                         }
                     }

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rick.appselect.R
 import com.rick.appselect.databinding.ActivityAppSelectBinding
+import com.rick.appselect.domain.model.Result
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -18,6 +19,7 @@ class AppSelectActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAppSelectBinding
     private lateinit var viewModel: AppSelectViewModel
     private lateinit var adapter: AppSelectAdapter
+    private var movieList = mutableListOf<Result>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +41,10 @@ class AppSelectActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
 
         viewModel.movieList.observe(this) { list ->
-            adapter.moviesDiffer.submitList(list)
+            movieList.addAll(list)
+            // ответ API иногда отправляет один и тот же фильм
+            movieList.toSet()
+            adapter.moviesDiffer.submitList(movieList.toList())
         }
 
 
@@ -52,28 +57,27 @@ class AppSelectActivity : AppCompatActivity() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (!viewModel.isLoading.value!!) {
-                    if (layoutManager.findLastCompletelyVisibleItemPosition() == adapter.moviesDiffer.currentList.size - 1) {
-                        viewModel.loadMoreData()
+                    if (layoutManager.findLastCompletelyVisibleItemPosition() == movieList.size - 1) {
+                        // проверьте, есть ли еще доступные данные из API
+                        if (viewModel.hasMore.value == true) viewModel.loadMoreData()
                     }
                 }
             }
         })
 
-        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                super.onItemRangeInserted(positionStart, itemCount)
-                layoutManager.scrollToPositionWithOffset(positionStart, 0)
-            }
-        })
-
         viewModel.errorMessage.observe(this) {
             if (it.isNotBlank())
-                Toast.makeText(this, getString(R.string.error_toast_message), Toast.LENGTH_LONG)
+                Toast.makeText(this, getString(R.string.error_toast_message, it), Toast.LENGTH_LONG)
                     .show()
         }
 
-        viewModel.isRefreshing.observe(this){
+        viewModel.isRefreshing.observe(this) {
             binding.root.isRefreshing = it
+        }
+
+        viewModel.hasMore.observe(this) {
+            if (!it) Toast.makeText(this, getString(R.string.no_more_movies), Toast.LENGTH_SHORT)
+                .show()
         }
 
         binding.root.setOnRefreshListener {
