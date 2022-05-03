@@ -1,6 +1,7 @@
 package com.rick.appselect.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -17,10 +18,8 @@ class SplashScreenActivity : AppCompatActivity() {
 
         appSelectViewModel = ViewModelProvider(this)[AppSelectViewModel::class.java]
 
-
-
-//        startActivity(Intent(this, AppSelectActivity::class.java))
-//        finish()
+        startActivity(Intent(this, AppSelectActivity::class.java))
+        finish()
 
     }
 }
