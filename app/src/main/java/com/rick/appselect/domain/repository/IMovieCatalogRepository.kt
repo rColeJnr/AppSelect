@@ -1,10 +1,10 @@
 package com.rick.appselect.domain.repository
 
-import com.bumptech.glide.load.engine.Resource
 import com.rick.appselect.domain.model.MovieCatalog
+import com.rick.appselect.util.Resource
 import kotlinx.coroutines.flow.Flow
 
-interface IMovieRepository {
+interface IMovieCatalogRepository {
 
     suspend fun getMovieCalalog(
         query: String

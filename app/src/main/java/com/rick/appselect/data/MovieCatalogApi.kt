@@ -4,7 +4,7 @@ import com.rick.appselect.data.remote.MovieCatalogDto
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface MoviesApi {
+interface MovieCatalogApi {
 
     @GET("svc/movies/v2/reviews/all.json?")
     suspend fun fetchMovieCatalog(
