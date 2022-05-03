@@ -8,6 +8,6 @@ interface IMovieCatalogRepository {
 
     suspend fun getMovieCalalog(
         query: String
-    ): Flow<Resource<List<MovieCatalog>>>
+    ): Flow<Resource<MovieCatalog>>
 
 }
