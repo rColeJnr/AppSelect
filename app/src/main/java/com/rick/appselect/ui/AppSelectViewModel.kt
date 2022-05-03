@@ -18,10 +18,13 @@ class AppSelectViewModel @Inject constructor(
     private val repository: IMovieCatalogRepository
 ) : ViewModel() {
 
-    val errorMessage = MutableLiveData<String>()
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String> = _errorMessage
 
     private val _movieList = MutableLiveData<List<Result>>()
     val movieList: LiveData<List<Result>> = _movieList
+
+    var movieMutableList = mutableListOf<Result>()
 
     private val _hasMore = MutableLiveData<Boolean>()
     val hasMore: LiveData<Boolean> = _hasMore
@@ -44,12 +47,12 @@ class AppSelectViewModel @Inject constructor(
                 .collect { result ->
                     when (result) {
                         is Resource.Error -> {
-                            errorMessage.value = result.message ?: Resources.getSystem().getString(R.string.error_message)
+                            _errorMessage.value = result.message ?: Resources.getSystem()
+                                .getString(R.string.error_message)
                             _isRefreshing.value = false
                         }
                         is Resource.Loading -> {
                             _isLoading.value = result.isLoading
-                            if (isRefreshing.value == true) _isLoading.value = false
                         }
                         is Resource.Success -> {
                             _movieList.postValue(
@@ -69,8 +72,9 @@ class AppSelectViewModel @Inject constructor(
         fetchMovieCatalog(paginationNumber)
     }
 
-    fun refreshData(){
+    fun refreshData() {
         _isRefreshing.postValue(true)
-        fetchMovieCatalog(paginationNumber)
+        movieMutableList = mutableListOf()
+        fetchMovieCatalog(15)
     }
 }

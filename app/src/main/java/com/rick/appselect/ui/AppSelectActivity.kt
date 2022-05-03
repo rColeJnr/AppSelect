@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rick.appselect.R
 import com.rick.appselect.databinding.ActivityAppSelectBinding
-import com.rick.appselect.domain.model.Result
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -19,7 +18,6 @@ class AppSelectActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAppSelectBinding
     private lateinit var viewModel: AppSelectViewModel
     private lateinit var adapter: AppSelectAdapter
-    private var movieList = mutableListOf<Result>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +39,10 @@ class AppSelectActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
 
         viewModel.movieList.observe(this) { list ->
-            movieList.addAll(list)
+            viewModel.movieMutableList.addAll(list)
             // ответ API иногда отправляет один и тот же фильм
-            movieList.toSet()
-            adapter.moviesDiffer.submitList(movieList.toList())
+            viewModel.movieMutableList.toSet()
+            adapter.moviesDiffer.submitList(viewModel.movieMutableList.toList())
         }
 
 
@@ -57,7 +55,7 @@ class AppSelectActivity : AppCompatActivity() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (!viewModel.isLoading.value!!) {
-                    if (layoutManager.findLastCompletelyVisibleItemPosition() == movieList.size - 1) {
+                    if (layoutManager.findLastCompletelyVisibleItemPosition() == adapter.moviesDiffer.currentList.size - 1) {
                         // проверьте, есть ли еще доступные данные из API
                         if (viewModel.hasMore.value == true) viewModel.loadMoreData()
                     }
