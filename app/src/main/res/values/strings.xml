@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">AppSelect</string>
     <string name="error_message">Couldn\'t load data</string>
+    <string name="error_toast_message">"an error occurred: %1$s"</string>
 </resources>
