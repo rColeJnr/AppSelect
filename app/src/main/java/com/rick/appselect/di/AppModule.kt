@@ -2,8 +2,7 @@ package com.rick.appselect.di
 
 import com.rick.appselect.data.MovieCatalogApi
 import com.rick.appselect.data.MovieCatalogApi.Companion.BASE_URL
-import com.rick.appselect.domain.repository.IMovieCatalogRepository
-import dagger.Binds
+import com.rick.appselect.data.CustomInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,7 +27,9 @@ object AppModule {
             .client(OkHttpClient.Builder()
                 .addInterceptor(HttpLoggingInterceptor().apply {
                     level = HttpLoggingInterceptor.Level.BASIC
-                }).build()
+                })
+                .addInterceptor(CustomInterceptor())
+                .build()
             )
             .build()
             .create()
